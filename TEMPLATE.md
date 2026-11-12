@@ -1,7 +1,6 @@
 # Lesson template
 
-Every lesson is a `README.md` inside its own folder, and every lesson uses the sections below.
-Tier 3 lessons keep the same sections, just shorter.
+Each lesson is a `README.md` in its own folder, with the sections below. Tier 3 uses the same sections, just shorter.
 Remove this intro and the `<!-- comments -->` when writing a lesson.
 
 ---

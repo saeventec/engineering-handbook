@@ -1,12 +1,6 @@
 # Glossary
 
-Short, simple definitions of terms used in the lessons.
-Each term links to the lesson that explains it.
-Terms are added as lessons are written.
-
+Short definitions of terms used in the lessons, in alphabetical order.
 Format: `- **Term**: simple definition. → [lesson ID](path)`
 
----
-
-<!-- Add entries below in alphabetical order, under the matching letter heading.
-     Create a letter heading (e.g. "## A") when the first term for it is added. -->
+<!-- Add a letter heading (e.g. "## A") when its first term is added. -->
