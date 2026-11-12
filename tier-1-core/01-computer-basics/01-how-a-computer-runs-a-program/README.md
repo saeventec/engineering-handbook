@@ -1,6 +1,6 @@
 # 1.01.01 How a computer runs a program
 
-> **Tier:** 1 · Core  **Area:** Computer basics  **Status:** 🟡 In progress
+> **Tier:** 1 · Core  **Area:** Computer basics  **Status:** ✅ Done
 
 ## TL;DR
 A computer has three main parts: the **CPU** does the work, **memory (RAM)** holds what is being worked on right now, and **storage** keeps files when the power is off.
@@ -84,16 +84,25 @@ You write Python, not machine code. So who turns it into something the CPU can r
 - A **compiler** translates your whole program into machine code *before* it runs (C, Rust and Go work this way).
 - An **interpreter** is a program that reads your code and carries it out as it goes.
 
-Python (the standard version, called **CPython**) does a bit of both:
-1. It **compiles** your `.py` file into **bytecode**: simple instructions for an imaginary computer, not for your real CPU.
-2. The **interpreter** (itself a normal program, written in C) runs that bytecode, one instruction at a time.
+**Python vs CPython.** "Python" is the *language*: the rules for what valid code looks like. **CPython** is the *program* that runs Python code. It's written in C, hence the name.
+When you type `python` in a terminal, you start CPython. Other implementations exist (e.g. PyPy), but CPython is the standard one and the one almost everyone uses.
+
+CPython runs your code in two steps:
+1. It **compiles** your `.py` file into **bytecode**: a list of very simple steps, like "load `price`", "add", "return". They're like machine code, but made for CPython, not for your real CPU.
+2. Its **interpreter** loop runs that bytecode, one step at a time.
 
 ```
 your_code.py  →  bytecode  →  CPython interpreter  →  CPU runs the interpreter's machine code
 ```
 
-When you import a module, Python saves its bytecode in a `__pycache__` folder as a `.pyc` file, so it doesn't have to compile it again next time.
-If you change the `.py` file, Python notices and recompiles it.
+**Why compile first?** Source text is slow to work with directly: spaces, comments, brackets, operator order. Translating it once into simple steps lets the interpreter loop run fast. A loop that runs a million times is translated once, not a million times.
+
+**When does it compile?** Every time you run code, just before it runs. It takes a fraction of a second, so you never notice.
+- **The file you run** (`python run_program.py`) is compiled in memory each time. Nothing is saved.
+- **Files you import** (`import pricing`) are compiled and saved in a `__pycache__` folder as a `.pyc` file. Next time, Python reuses that file. If you change the `.py` file, Python notices and recompiles it.
+
+**So is Python "interpreted"?** Yes, in the sense that matters: your code is never turned into machine code for your CPU. Python still has one quick compile step to bytecode first.
+So "interpreted" doesn't mean "reads your text line by line". It means "a program (the interpreter) runs your code, instead of the CPU running it directly".
 
 This extra layer is a big reason Python is slower than C or Rust for heavy number-crunching. It's also why the same `.py` file runs on both x86-64 and ARM: only the interpreter needs to be built for each ISA.
 
@@ -177,15 +186,43 @@ __pycache__/
    <details><summary>Answer</summary>Read it once at startup and keep it in memory (a variable), since memory is much faster than storage.</details>
 
 ## Q&A
-_No questions yet._
+### Q: Can I compile a Python file to a `.pyc` myself and run it?
+Yes. `python -m py_compile pricing.py` creates `__pycache__/pricing.cpython-315.pyc`, and `python __pycache__/pricing.cpython-315.pyc` runs it, even without the `.py` file.
+(`python -m compileall <folder>` compiles a whole folder.)
+- It doesn't run faster. Only loading is faster, because the compile step is skipped.
+- It only works with the same Python version (here 3.15).
+- It doesn't hide your code: tools like `dis` can read the bytecode back.
+- At work you rarely do this by hand. Python manages `__pycache__` for you.
+
+### Q: How do I see the bytecode of a `.py` or `.pyc` file?
+- **From a `.py` file:** run `python -m dis pricing.py`. It prints the bytecode for the whole file and every function in it. Numbers on the left are source line numbers. An `__annotate__` block is a helper Python makes for type hints; ignore it.
+- **From a `.pyc` file:** it's a 16-byte header (version stamp and freshness info) followed by bytecode packed with `marshal`. Skip the header, unpack, and disassemble:
+  ```python
+  import dis
+  import marshal
+  import sys
+  from pathlib import Path
+
+  data = Path(sys.argv[1]).read_bytes()
+  code = marshal.loads(data[16:])  # skip the 16-byte header
+  dis.dis(code)
+  ```
+  This only works with the Python version that made the file. Only open `.pyc` files you trust: `marshal` isn't safe against malicious data.
 
 ## Key takeaways
-<!-- Written when the lesson is finished. -->
+- **CPU** runs instructions, **RAM** holds what's in use now (lost at power off), **storage** keeps files. Each memory layer is smaller and faster than the next: an SSD is about 2,000× slower than RAM.
+- The CPU only runs **machine code** for its **ISA** (x86-64 or ARM), in a fetch–decode–execute loop driven by the **program counter**.
+- **Python** is the language; **CPython** is the program that runs it. It compiles your code to **bytecode** (quickly, every run), then its interpreter runs that bytecode.
+- Bytecode is tied to the **Python version**, not the ISA. Imported modules are cached as `.pyc` files in `__pycache__`; this speeds up loading, not running.
+- See bytecode with `python -m dis file.py`. Slow code is usually *waiting* (disk, network), so keep hot data in memory and save what must survive to storage.
 
 ## Sources
 - [Python glossary: bytecode, interpreted, virtual machine](https://docs.python.org/3/glossary.html) (checked 2026-11-12)
 - [Python docs: `dis`, disassembler for Python bytecode](https://docs.python.org/3/library/dis.html) (checked 2026-11-12)
 - [Python tutorial: "Compiled" Python files](https://docs.python.org/3/tutorial/modules.html#compiled-python-files) (checked 2026-11-12)
+- [Python docs: `py_compile`, compile Python source files](https://docs.python.org/3/library/py_compile.html) (checked 2026-11-12)
+- [Python docs: `marshal`, internal object serialization](https://docs.python.org/3/library/marshal.html) (checked 2026-11-12)
+- [PEP 552: Deterministic pycs (the `.pyc` header layout)](https://peps.python.org/pep-0552/) (checked 2026-11-12)
 - [Wikipedia: Instruction cycle](https://en.wikipedia.org/wiki/Instruction_cycle) (checked 2026-11-12)
 - [Wikipedia: Memory hierarchy (latency table for an AMD Zen 4 system)](https://en.wikipedia.org/wiki/Memory_hierarchy) (checked 2026-11-12)
 - [Wikipedia: Machine code](https://en.wikipedia.org/wiki/Machine_code) (checked 2026-11-12)
