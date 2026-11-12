@@ -1,0 +1,6 @@
+# The only tool config in this repo.
+# Run `mise install` to get the tools used by lesson examples.
+# Add a tool here only if lesson examples really need it.
+
+[tools]
+python = "3.15"
