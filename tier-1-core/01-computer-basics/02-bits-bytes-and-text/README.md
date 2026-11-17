@@ -1,6 +1,6 @@
 # 1.01.02 Bits, bytes and text
 
-> **Tier:** 1 · Core  **Area:** Computer basics  **Status:** 🟡 In progress
+> **Tier:** 1 · Core  **Area:** Computer basics  **Status:** ✅ Done
 
 ## TL;DR
 Everything in a computer is stored as **bits** (0 or 1), grouped into **bytes** (8 bits each).
@@ -209,7 +209,12 @@ Same file, two views: `read_text` decodes it into `str`, and `read_bytes` shows 
 _No questions yet._
 
 ## Key takeaways
-<!-- Written when the lesson is finished. -->
+- A **bit** is 0 or 1; a **byte** is 8 bits (256 values, 0–255). **Hex** writes one byte as two digits (`00`–`ff`).
+- Integers in most systems have a **fixed size** and can overflow; Python's `int` can't, but databases and other systems still can.
+- **Floats** are binary fractions with tiny errors: compare with `math.isclose()`, and never use them for money.
+- Text = **code points** (Unicode's number for each character) turned into bytes by an **encoding**. Use **UTF-8** (1–4 bytes per character).
+- Bytes don't say their encoding. Decoding with the wrong one gives **mojibake** or `UnicodeDecodeError`.
+- In Python, `str` is text and `bytes` is raw data: decode early, encode late, and always pass `encoding="utf-8"`.
 
 ## Sources
 - [Python docs: Unicode HOWTO](https://docs.python.org/3/howto/unicode.html) (checked 2026-11-13)
